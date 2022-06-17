@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Image Uploading</title>
+	<link rel="stylesheet" href="/views/display.css">
+</head>
+<body>
+
+    <h1>Log-In</h1>
+
+    <div>
+        <label name="errorMessage"></label>
+
+        <form action="/home" method="POST">
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="Username"
+                value="" name="username" required>  
+            <br>
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="zb.1234"
+                value="" name="password" required> 
+            <br>
+            <button type="submit">Log-In</button>
+        </form>
+
+		<a href="/"><button type="submit">Back</button></a>
+
+    </div>
+
+
+</body>
+</html>

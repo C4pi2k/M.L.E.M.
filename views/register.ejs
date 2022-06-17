@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Image Uploading</title>
+	<link rel="stylesheet" href="/views/display.css">
+</head>
+<body>
+
+    <h1>Register</h1>
+
+    <div>
+
+        <form action="/register" method="post" enctype="multipart/form-data">
+            <label for="email">E-Mail</label>
+            <input type="text" id="email" placeholder="e.g. user@mail.com"
+                value="" name="email" required> 
+            <br>
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="Username"
+                value="" name="username" required>  
+            <br>
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="zb.1234"
+                value="" name="password" required> 
+            <br>
+            <button type="submit">Submit</button>
+        </form>
+
+        <a href="/"><button type="submit">Back</button></a>
+
+
+    </div>
+
+</body>
+</html>
