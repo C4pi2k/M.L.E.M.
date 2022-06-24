@@ -115,19 +115,14 @@ app.post('/register', upload.single('user'), (req, res) => {
 
 app.post('/login', async (req, res) => {
 
-	let isUserExisting = await userModel.exists({ username: req.body.username, password:req.body.password});
-	if (isUserExisting){
-		userModel.find({}, (err) => {
-			if (err) {
-				console.log(err);
-				res.status(500).send('An error occurred', err);
-			}
-			else {
+	let user = await userModel.findOne({ username: req.body.username, password:req.body.password});
+	if (user){
+				req.session.user = user;
+				req.session.userid = user.id;
 				req.session.username = req.body.username;
 				req.session.password = req.body.password;
-				res.render('profile', {username: req.session.username});
-			}
-		});		
+				console.log(user);
+				res.render('profile', {user: user});
 	} else {
 		res.status(200).send("User does not exist")
 	}
