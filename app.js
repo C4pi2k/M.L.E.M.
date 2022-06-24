@@ -1,8 +1,13 @@
 // 1 - set up express & mongoose
-var express = require('express')
-var app = express()
+var express = require('express');
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
+var bcrypt = require('bcrypt');
+var app = express();
 var bodyParser = require('body-parser');
-var mongoose = require('mongoose')
+var MongoStore = require('connect-mongo');
+var mongoose = require('mongoose');
+var cookie = express();
 
 var fs = require('fs');
 var path = require('path');
@@ -17,6 +22,18 @@ function bar(() => {
 
 bar(aFunc)
 */
+
+// 1.5 - Creating Session Stuff
+app.use(cookieParser());
+
+const oneDay = 1000 * 60 * 60 * 24;
+app.use(session({
+	secret: bcrypt.genSaltSync(10),
+	resave: false,
+	saveUninitialized: true,
+	cookie: { MaxAge: oneDay },
+	store: MongoStore.create({mongoUrl: 'mongodb+srv://mongodbUser:mongodbUser@cluster0.yfuml.mongodb.net/?retryWrites=true&w=majority'})
+}));
 
 // 2 - Verbindung zur Datenbank
 mongoose.connect(process.env.MONGO_URL,
@@ -50,12 +67,14 @@ var upload = multer({ storage: storage });
 
 // 6 - Mongoose Models
 //var imgModel = require('./model/models');
+var userModel = require('./model/users');
 const { PRIORITY_ABOVE_NORMAL } = require('constants');
 const { json } = require('body-parser');
 
 // 7 - GET Methods
 app.get('/', (req, res) => {
-		res.render('welcome');
+	req.
+	res.render('welcome');
 });
 
 app.get('/login', (req, res) => {
@@ -67,15 +86,24 @@ app.get('/register', (req, res) => {
 });
 
 // 8 - POST Methods
-app.post('/register', upload.single('user'), (req, res, next) => {
+app.post('/register', upload.single('user'), (req, res) => {
 
-	var obj = {
+    var today = new Date();
+
+    var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+
+	var userObj = {
+        email: req.body.email,
 		username: req.body.username,
 		password: req.body.password,
-		phoneNumber: 0,
-		telephone: 0
+        joindate: date,
+        profileImg:
+        {
+            data: null,
+            contentType: date
+        }
 	}
-	userModel.create(obj, (err, item) => {
+	userModel.create(userObj, (err) => {
 		if (err) {
 			console.log(err);
 		}
@@ -83,6 +111,26 @@ app.post('/register', upload.single('user'), (req, res, next) => {
 			res.redirect('/');
 		}
 	});
+});
+
+app.post('/login', async (req, res) => {
+
+	let isUserExisting = await userModel.exists({ username: req.body.username, password:req.body.password});
+	if (isUserExisting){
+		userModel.find({}, (err) => {
+			if (err) {
+				console.log(err);
+				res.status(500).send('An error occurred', err);
+			}
+			else {
+				req.session.username = req.body.username;
+				req.session.password = req.body.password;
+				res.render('profile', {username: req.session.username});
+			}
+		});		
+	} else {
+		res.status(200).send("User does not exist")
+	}
 });
 
 // Schritt 9 - Den Server port setzen
