@@ -1,7 +1,7 @@
 // 3 - Das mongoose Modul laden
 var mongoose = require('mongoose');
 
-var userSchema = new mongoose.Schema({
+var textContentSchema = new mongoose.Schema({
     userID: String,
     title: String,
     text: String

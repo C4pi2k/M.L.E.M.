@@ -5,11 +5,98 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Image Uploading</title>
-	<link rel="stylesheet" href="/views/display.css">
+	<link rel="stylesheet" href="/design/profile.css">
 </head>
 <body>
 
-    <%= user.id %>
+	<%= user.profileImg.data %>
+	<br>
+	<div>
+		<form action="/changeProfilePicture" method="POST">
+			<input type="file" id="image"
+			name="image" value="" required>
+			<br>
+			<br>
+			<button type="submit">Change Profile Picture</button>
+		</form>
+	</div>
+	<br>
+    <%= user.username %>
+	<br>
+	<%= user.joindate %>
+	<br>
+	<hr>
+	<br>
+	<form action="/userSearch" method="GET">
+		<button>Search for users</button>
+	</form>
+	<br>
+	<form action="/forYouPage" method="GET">
+		<button>Go to the fyp</button>
+	</form>
+	<br>
+	<hr>
+	<br>
+	<div class="row">
+		<div class="column">
+			<table>
+				<tr>
+					<th>
+						<h3>
+							Images
+						</h3>
+					</th>
+				</tr>
+				<tr>
+					<th>
+						<form action="/uploadImage" method="GET">
+							<button type="submit">
+								Upload new Image
+							</button>
+						</form>
+					</th>
+				</tr>
+				<% images.forEach(function(image) { %>
+					<tr>
+						<th>
+							<img src="data:image/<%=image.img.contentType%>;base64,
+								<%=image.img.data.toString('base64')%>">
+							<p><%= image.description %></p>
+						</th>
+					</tr>
+				<% }) %>
+			</table>
+		</div>
+		<div class="column">
+			<table>
+				<tr>
+					<th>
+						<h3>
+							Texts
+						</h3>
+					</th>
+				</tr>
+				<tr>
+					<th>
+						<form action="/uploadText" method="GET">
+							<button type="submit">
+								Upload new Text
+							</button>
+						</form>
+					</th>
+				</tr>
+				<% texts.forEach(function(text) { %>
+					<tr>
+						<th>
+							<h3><%= text.title %></h3>
+							<p><%= text.text %></p>
+						</th>
+					</tr>
+				<% }) %>
+			</table>
+		</div>
+	</div>
+
 
 </body>
 </html>

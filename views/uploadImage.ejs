@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Image Uploading</title>
+	<link rel="stylesheet" href="/views/display.css">
+</head>
+<body>
+    <form action="/back" method="post">
+        <button type="submit">Back</button>
+    </form>
+    <h1>
+        Upload a new image to your profile
+	</h1>
+    <hr>
+	<div>
+		<form action="/uploadImage" method="POST" enctype="multipart/form-data">
+			<div>
+				<label for="desc">Image Description</label>
+                <br>
+				<textarea id="description" name="description" value="" rows="2" 
+                required>
+				</textarea>
+			</div>
+			<br>
+			<div>
+				<label for="image">Upload Image</label>
+                <br>
+				<input type="file" id="image"
+					name="image" value="" required>
+			</div>
+            <br>
+			<div>
+				<button type="submit">Submit</button>
+			</div>
+		</form>
+	</div>
+</body>
+
+</html>

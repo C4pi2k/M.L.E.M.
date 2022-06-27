@@ -1,10 +1,10 @@
 // 3 - Das mongoose Modul laden
 var mongoose = require('mongoose');
 
-var userSchema = new mongoose.Schema({
+var imageContentSchema = new mongoose.Schema({
     userID: String,
     description: String,
-    profileImg:
+    img:
     {
 		  data: Buffer,
 		  contentType: String

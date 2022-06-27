@@ -13,6 +13,7 @@ var fs = require('fs');
 var path = require('path');
 require('dotenv/config');
 
+
 app.use(express.static(__dirname));
 
 /*
@@ -66,8 +67,9 @@ var storage = multer.diskStorage({
 var upload = multer({ storage: storage });
 
 // 6 - Mongoose Models
-//var imgModel = require('./model/models');
 var userModel = require('./model/users');
+var imageModel = require('./model/imgContent');
+var textModel = require('./model/textContent');
 const { PRIORITY_ABOVE_NORMAL } = require('constants');
 const { json } = require('body-parser');
 
@@ -84,6 +86,32 @@ app.get('/login', (req, res) => {
 app.get('/register', (req, res) => {
     res.render('register');
 });
+
+app.get('/userSearch', (req, res) => {
+	res.render('userSearch');
+})
+
+app.get('/forYouPage', (req, res) => {
+	res.render('forYouPage');
+})
+
+app.get('/uploadImage', (req, res) => {
+	console.log(req.session.userid);
+	console.log(req.session.username);
+	console.log(req.session.password);
+	res.render('uploadImage');
+})
+
+app.get('/uploadText', (req, res) => {
+	console.log(req.session.userid);
+	console.log(req.session.username);
+	console.log(req.session.password);
+	res.render('uploadText');
+})
+
+app.get('/profile', (req, res) => {
+	res.render('profile');
+})
 
 // 8 - POST Methods
 app.post('/register', upload.single('user'), (req, res) => {
@@ -113,19 +141,97 @@ app.post('/register', upload.single('user'), (req, res) => {
 	});
 });
 
+app.post('/back', async (req, res) => {
+	let user = await userModel.findOne({ username: req.session.username, password: req.session.password});
+
+	let images = await imageModel.find({userID: req.session.userid}).exec();
+
+	let texts = await textModel.find({userID: req.session.userid}).exec();
+
+	res.render('profile', {user: user, images: images, texts: texts});
+})
+
 app.post('/login', async (req, res) => {
 
 	let user = await userModel.findOne({ username: req.body.username, password:req.body.password});
+
 	if (user){
-				req.session.user = user;
-				req.session.userid = user.id;
-				req.session.username = req.body.username;
-				req.session.password = req.body.password;
-				console.log(user);
-				res.render('profile', {user: user});
+			req.session.user = user;
+			req.session.userid = user.id;
+			res.locals.userid = user.id;
+			req.session.username = req.body.username;
+			res.locals.username = user.username;
+			req.session.password = req.body.password;
+			res.locals.password = user.password;
+			console.log(req.session.userid);
+			console.log(req.session.username);
+			console.log(req.session.password);
+			console.log(res.locals.userid);
+			console.log(res.locals.username);
+			console.log(res.locals.password);
+
+			let images = await imageModel.find({userID: req.session.userid}).exec();
+
+			let texts = await textModel.find({userID: req.session.userid}).exec();
+
+			res.render('profile', {user: user, images: images, texts: texts});
 	} else {
 		res.status(200).send("User does not exist")
 	}
+	}
+);
+
+app.post('/changeProfilePicture', upload.single('profileImg.data'), async (req, res) => {
+
+})
+
+app.post('/uploadImage', upload.single('image'), async (req, res, next) => {
+
+	var obj = {
+		userID: req.session.userid,
+		description: req.body.description,
+		img: {
+			data: fs.readFileSync(path.join(__dirname + '/uploads/' + req.file.filename)),
+			contentType: 'image/png'
+		}
+	}
+	imageModel.create(obj, async (err, item) => {
+		if (err) {
+			console.log(err);
+		}
+		else {
+			item.save();
+			
+			let images = await imageModel.find({userID: req.session.userid}).exec();
+
+			let texts = await textModel.find({userID: req.session.userid}).exec();
+
+			res.render('profile', {user: req.session.user, images:images, texts: texts});
+		}
+	});
+});
+
+app.post('/uploadText', upload.single('image'), async (req, res, next) => {
+
+	var obj = {
+		userID: req.session.userid,
+		title: req.body.userTitle,
+		text: req.body.userText
+	}
+	textModel.create(obj, async (err, item) => {
+		if (err) {
+			console.log(err);
+		}
+		else {
+			item.save();
+
+			let images = await imageModel.find({userID: req.session.userid}).exec();
+
+			let texts = await textModel.find({userID: req.session.userid}).exec();
+
+			res.render('profile', {user: req.session.user, images: images, texts: texts});
+		}
+	});
 });
 
 // Schritt 9 - Den Server port setzen
@@ -135,3 +241,5 @@ app.listen(port, err => {
 		throw err
 	console.log('Server listening on port', port)
 })
+
+
