@@ -70,6 +70,7 @@ var upload = multer({ storage: storage });
 var userModel = require('./model/users');
 var imageModel = require('./model/imgContent');
 var textModel = require('./model/textContent');
+var followModel = require('./model/following');
 const { PRIORITY_ABOVE_NORMAL } = require('constants');
 const { json } = require('body-parser');
 
@@ -91,6 +92,10 @@ app.get('/userSearch', (req, res) => {
 	res.render('userSearch');
 })
 
+app.get('/userSearchInput', (req, res) => {
+	res.render('userSearchInput');
+})
+
 app.get('/forYouPage', (req, res) => {
 	res.render('forYouPage');
 })
@@ -98,19 +103,26 @@ app.get('/forYouPage', (req, res) => {
 app.get('/uploadImage', (req, res) => {
 	console.log(req.session.userid);
 	console.log(req.session.username);
-	console.log(req.session.password);
 	res.render('uploadImage');
 })
 
 app.get('/uploadText', (req, res) => {
 	console.log(req.session.userid);
 	console.log(req.session.username);
-	console.log(req.session.password);
 	res.render('uploadText');
 })
 
 app.get('/profile', (req, res) => {
 	res.render('profile');
+})
+
+app.get('/comment', (req, res) => {
+
+	let imageID = req.body.imageID;
+
+	console.log(imageID);
+
+	res.render('comment', {image: imageID});
 })
 
 // 8 - POST Methods
@@ -142,7 +154,11 @@ app.post('/register', upload.single('user'), (req, res) => {
 });
 
 app.post('/back', async (req, res) => {
-	let user = await userModel.findOne({ username: req.session.username, password: req.session.password});
+	let user = await userModel.findById(req.session.userid).exec();
+
+	console.log(req.session.userid);
+
+	console.log(user);
 
 	let images = await imageModel.find({userID: req.session.userid}).exec();
 
@@ -156,19 +172,10 @@ app.post('/login', async (req, res) => {
 	let user = await userModel.findOne({ username: req.body.username, password:req.body.password});
 
 	if (user){
-			req.session.user = user;
 			req.session.userid = user.id;
-			res.locals.userid = user.id;
-			req.session.username = req.body.username;
-			res.locals.username = user.username;
-			req.session.password = req.body.password;
-			res.locals.password = user.password;
+			req.session.username = user.username;
 			console.log(req.session.userid);
 			console.log(req.session.username);
-			console.log(req.session.password);
-			console.log(res.locals.userid);
-			console.log(res.locals.username);
-			console.log(res.locals.password);
 
 			let images = await imageModel.find({userID: req.session.userid}).exec();
 
@@ -181,8 +188,26 @@ app.post('/login', async (req, res) => {
 	}
 );
 
-app.post('/changeProfilePicture', upload.single('profileImg.data'), async (req, res) => {
+app.post('/changeProfilePicture', upload.single('image'), async (req, res) => {
 
+	let userId = req.session.userid;
+
+	console.log(req.file);
+
+	let data = fs.readFileSync(path.join(__dirname + '/uploads/' + req.file.filename));
+
+	let update = {profileImg:{
+		data: data,
+		contentType: req.file.mimetype
+	}}
+
+	await userModel.findOneAndUpdate(userId, update, {});
+
+	let user = await userModel.findOne({ username: req.session.username, password: req.session.password});
+	let images = await imageModel.find({userID: req.session.userid}).exec();
+	let texts = await textModel.find({userID: req.session.userid}).exec();
+
+	res.render('profile', {user: user, images: images, texts: texts});
 })
 
 app.post('/uploadImage', upload.single('image'), async (req, res, next) => {
@@ -192,7 +217,7 @@ app.post('/uploadImage', upload.single('image'), async (req, res, next) => {
 		description: req.body.description,
 		img: {
 			data: fs.readFileSync(path.join(__dirname + '/uploads/' + req.file.filename)),
-			contentType: 'image/png'
+			contentType: req.file.mimetype
 		}
 	}
 	imageModel.create(obj, async (err, item) => {
@@ -202,11 +227,11 @@ app.post('/uploadImage', upload.single('image'), async (req, res, next) => {
 		else {
 			item.save();
 			
+			let user = await userModel.findById(req.session.userid);
 			let images = await imageModel.find({userID: req.session.userid}).exec();
-
 			let texts = await textModel.find({userID: req.session.userid}).exec();
 
-			res.render('profile', {user: req.session.user, images:images, texts: texts});
+			res.render('profile', {user: user, images:images, texts: texts});
 		}
 	});
 });
@@ -225,14 +250,70 @@ app.post('/uploadText', upload.single('image'), async (req, res, next) => {
 		else {
 			item.save();
 
+			let user = await userModel.findById(req.session.userid);
 			let images = await imageModel.find({userID: req.session.userid}).exec();
-
 			let texts = await textModel.find({userID: req.session.userid}).exec();
 
-			res.render('profile', {user: req.session.user, images: images, texts: texts});
+			res.render('profile', {user: user, images: images, texts: texts});
 		}
 	});
 });
+
+app.post('/searchForUser', async(req, res, next) => {
+
+	req.session.searchTerm = req.body.userInput;
+	let searchTerm = req.body.userInput;
+
+	console.log(typeof req.session.searchTerm);
+	console.log(searchTerm);
+	console.log(req.body);
+
+	let searchUsers = await userModel.find({username: { $regex:  searchTerm, $options: "i"}});
+
+
+	res.render('userSearch', {foundUsers: searchUsers});
+})
+
+app.post('/followUser', async(req, res, next) => {
+
+	let currentUser = req.session.userid;
+	let followingUser = req.body.followingUserID;
+	
+	var follow = {
+		userID: currentUser,
+		followingUserID: followingUser
+	}
+	
+	followModel.create(follow, async (err) => {
+		if(err) {
+			console.log(err);
+		}
+		else {
+			let user = await userModel.findById(req.session.userid);
+			let images = await imageModel.find({userID: req.session.userid}).exec();
+			let texts = await textModel.find({userID: req.session.userid}).exec();
+
+			res.render('profile', {user: user, images: images, texts: texts});
+		}
+	})
+})
+
+app.post('/forYouPage', async(req, res, next) => {
+
+	let following = followModel.find({userID: req.session.userid});
+
+	console.log(following);
+
+	let imgContent = following.forEach(imageModel.find({userID: following.followingUserID}));
+
+	console.log(imgContent);
+
+	let txtContent = following.forEach(textModel.find({userID: following.followingUserID}));
+
+	console.log(txtContent);
+
+	res.render('forYouPage', {images: imgContent, texts: txtContent});
+})	
 
 // Schritt 9 - Den Server port setzen
 var port = process.env.PORT || '3000'

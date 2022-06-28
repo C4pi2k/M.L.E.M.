@@ -5,7 +5,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Image Uploading</title>
-	<link rel="stylesheet" href="/views/display.css">
+	<link rel="stylesheet" href="">
 </head>
 <body>
 	
@@ -16,10 +16,31 @@
     <h1>User Search</h1>
 
     <div>
-
-
-
+		<form action="/searchForUser" method="POST">
+			<input name="userInput" id="userInput" placeholder="enter username e.g. hans">
+			<button type="submit">Search user!</button>
+		</form>
     </div>
+	<hr>
+	<div>
+		<table style="width: 100%">
+			<% foundUsers.forEach(function(foundUser) { %>
+				<tr>
+					<th>
+						<p>
+							<%= foundUser.username %>
+						</p>
+						<form action="/followUser" method="POST">
+							<button type="submit">
+								Follow <%= foundUser.username %>
+							</button>
+							<input name="followingUserID" id="followingUserID" value="<%= foundUser.id %>" hidden></input>
+						</form>
+					</th>
+				</tr>
+			<% }) %>
+		</table>
+	</div>
 
 </body>
 </html>

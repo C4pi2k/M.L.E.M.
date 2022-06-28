@@ -16,11 +16,62 @@
     <h1>For You Page</h1>
 
 
-    <div>
-
-
-
-    </div>
+    <div class="row">
+		<div class="column">
+			<table>
+				<tr>
+					<th>
+						<h3>
+							Images
+						</h3>
+					</th>
+				</tr>
+				<% images.forEach(function(image) { %>
+					<tr>
+						<th>
+							<img src="data:<%=image.img.contentType%>;base64,
+								<%=image.img.data.toString('base64')%>">
+							<p><%= image.description %></p>
+							<form action="/comment" method="get">
+								<button type="submit">
+									Comment
+								</button>
+								<input name="imageID" id="imageID" value="<%= image.id %>"hidden>
+							</form>
+						</th>
+					</tr>
+				<% }) %>
+			</table>
+		</div>
+		<div class="column">
+			<table>
+				<tr>
+					<th>
+						<h3>
+							Texts
+						</h3>
+					</th>
+				</tr>
+				<tr>
+					<th>
+						<form action="/uploadText" method="GET">
+							<button type="submit">
+								Upload new Text
+							</button>
+						</form>
+					</th>
+				</tr>
+				<% texts.forEach(function(text) { %>
+					<tr>
+						<th>
+							<h3><%= text.title %></h3>
+							<p><%= text.text %></p>
+						</th>
+					</tr>
+				<% }) %>
+			</table>
+		</div>
+	</div>
 
 </body>
 </html>

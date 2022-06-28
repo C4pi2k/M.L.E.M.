@@ -8,13 +8,15 @@
 	<link rel="stylesheet" href="/design/profile.css">
 </head>
 <body>
-
-	<%= user.profileImg.data %>
+	<% if(user.profileImg.data != null){ %>
+		<img src="data:<%=user.profileImg.contentType%>;base64,
+		<%=user.profileImg.data.toString('base64')%>">
+	 <% } %>
 	<br>
 	<div>
-		<form action="/changeProfilePicture" method="POST">
+		<form action="/changeProfilePicture" method="POST"  enctype="multipart/form-data">
 			<input type="file" id="image"
-			name="image" value="" required>
+			name="image" required>
 			<br>
 			<br>
 			<button type="submit">Change Profile Picture</button>
@@ -23,15 +25,15 @@
 	<br>
     <%= user.username %>
 	<br>
-	<%= user.joindate %>
+	<%= user.joindate.toLocaleDateString() %>
 	<br>
 	<hr>
 	<br>
-	<form action="/userSearch" method="GET">
+	<form action="/userSearchInput" method="GET">
 		<button>Search for users</button>
 	</form>
 	<br>
-	<form action="/forYouPage" method="GET">
+	<form action="/forYouPage" method="POST">
 		<button>Go to the fyp</button>
 	</form>
 	<br>
@@ -59,9 +61,15 @@
 				<% images.forEach(function(image) { %>
 					<tr>
 						<th>
-							<img src="data:image/<%=image.img.contentType%>;base64,
+							<img src="data:<%=image.img.contentType%>;base64,
 								<%=image.img.data.toString('base64')%>">
 							<p><%= image.description %></p>
+							<form action="/comment" method="get">
+								<button type="submit">
+									Comment
+								</button>
+								<input name="imageID" id="imageID" value="<%= image.id %>"hidden>
+							</form>
 						</th>
 					</tr>
 				<% }) %>
