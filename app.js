@@ -300,19 +300,28 @@ app.post('/followUser', async(req, res, next) => {
 
 app.post('/forYouPage', async(req, res, next) => {
 
-	let following = followModel.find({userID: req.session.userid});
+	let following = await followModel.find({userID: req.session.userid});
+	
+	let followingArr = Array.from(following);
 
-	console.log(following);
+	let imageContent = [];
 
-	let imgContent = following.forEach(imageModel.find({userID: following.followingUserID}));
+	let textContent = [];
 
-	console.log(imgContent);
+	for(let follower of following){
+		let images = await imageModel.find({userID: follower.followingUserID});
+		let texts = await textModel.find({userID: follower.followingUserID});
 
-	let txtContent = following.forEach(textModel.find({userID: following.followingUserID}));
+		for(let image of images){
+			imageContent.push(image);
+		}
 
-	console.log(txtContent);
+		for(let text of texts){
+			textContent.push(text);
+		}
+	}
 
-	res.render('forYouPage', {images: imgContent, texts: txtContent});
+	res.render('forYouPage', {images: imageContent, texts: textContent});
 })	
 
 // Schritt 9 - Den Server port setzen
@@ -323,4 +332,5 @@ app.listen(port, err => {
 	console.log('Server listening on port', port)
 })
 
+// reduce
 
