@@ -9,15 +9,33 @@
 </head>
 <body>
 
-    <h1>Comment</h1>
+	<form action="/back" method="post">
+        <button type="submit">Back</button>
+    </form>
+
+    <h1>Comments</h1>
 
 	<div>
-		<input type="text" name="userInput" id="userInput" placeholder="enter username e.g. hans">
-		<form action="/searchForUser" method="POST">
-			<button type="submit">Search user!</button>
+
+
+
+		<form action="/uploadComment" method="POST">
+			<textarea name="userComment" id="userComment" required></textarea>
+			<br>
+			<button type="submit">Comment content</button>
+			<input name="contentIdent" id="contentIdent" value="<%= contentIdent %>" hidden>
 		</form>
     </div>
 	<hr>
+	<table>
+		<% comments.forEach(function(comment) { %>
+			<tr>
+				<th>
+					<p><%= comment.comment %></p>
+				</th>
+			</tr>		
+		<% }) %>
+	</table>
 
 </body>
 </html>

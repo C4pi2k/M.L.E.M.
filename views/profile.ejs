@@ -23,10 +23,8 @@
 		</form>
 	</div>
 	<br>
-    <%= user.username %>
-	<br>
-	<%= user.joindate.toLocaleDateString() %>
-	<br>
+    <p><%= user.username %></p>
+	<p>Beigetreten am <%= user.joindate.toLocaleDateString() %></p>
 	<hr>
 	<br>
 	<form action="/userSearchInput" method="GET">
@@ -64,11 +62,11 @@
 							<img src="data:<%=image.img.contentType%>;base64,
 								<%=image.img.data.toString('base64')%>">
 							<p><%= image.description %></p>
-							<form action="/comment" method="get">
+							<form action="/comment" method="post">
+								<input name="contentIdent" id="contentIdent" value="<%= image.id %>"hidden>
 								<button type="submit">
 									Comment
 								</button>
-								<input name="imageID" id="imageID" value="<%= image.id %>"hidden>
 							</form>
 						</th>
 					</tr>
@@ -98,6 +96,13 @@
 						<th>
 							<h3><%= text.title %></h3>
 							<p><%= text.text %></p>
+							<p><%= text.id %></p>
+							<form action="/comment" method="post">
+								<input name="contentIdent" id="contentIdent" value="<%= text.id %>"hidden>
+								<button type="submit">
+									Comment
+								</button>
+							</form>
 						</th>
 					</tr>
 				<% }) %>

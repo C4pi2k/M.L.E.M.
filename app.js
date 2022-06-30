@@ -71,6 +71,7 @@ var userModel = require('./model/users');
 var imageModel = require('./model/imgContent');
 var textModel = require('./model/textContent');
 var followModel = require('./model/following');
+var commentModel = require('./model/commentary');
 const { PRIORITY_ABOVE_NORMAL } = require('constants');
 const { json } = require('body-parser');
 
@@ -116,15 +117,6 @@ app.get('/profile', (req, res) => {
 	res.render('profile');
 })
 
-app.get('/comment', (req, res) => {
-
-	let imageID = req.body.imageID;
-
-	console.log(imageID);
-
-	res.render('comment', {image: imageID});
-})
-
 // 8 - POST Methods
 app.post('/register', upload.single('user'), (req, res) => {
 
@@ -156,9 +148,8 @@ app.post('/register', upload.single('user'), (req, res) => {
 app.post('/back', async (req, res) => {
 	let user = await userModel.findById(req.session.userid).exec();
 
-	console.log(req.session.userid);
-
-	console.log(user);
+	// console.log(req.session.userid);
+	// console.log(user);
 
 	let images = await imageModel.find({userID: req.session.userid}).exec();
 
@@ -201,9 +192,11 @@ app.post('/changeProfilePicture', upload.single('image'), async (req, res) => {
 		contentType: req.file.mimetype
 	}}
 
-	await userModel.findOneAndUpdate(userId, update, {});
+	let user = await userModel.findOneAndUpdate(userId, update, {
+		new: true
+	});
 
-	let user = await userModel.findOne({ username: req.session.username, password: req.session.password});
+	//let user = await userModel.findOne({ username: req.session.username, password: req.session.password});
 	let images = await imageModel.find({userID: req.session.userid}).exec();
 	let texts = await textModel.find({userID: req.session.userid}).exec();
 
@@ -272,7 +265,7 @@ app.post('/searchForUser', async(req, res, next) => {
 
 
 	res.render('userSearch', {foundUsers: searchUsers});
-})
+});
 
 app.post('/followUser', async(req, res, next) => {
 
@@ -295,17 +288,14 @@ app.post('/followUser', async(req, res, next) => {
 
 			res.render('profile', {user: user, images: images, texts: texts});
 		}
-	})
-})
+	});
+});
 
 app.post('/forYouPage', async(req, res, next) => {
 
 	let following = await followModel.find({userID: req.session.userid});
-	
-	let followingArr = Array.from(following);
 
 	let imageContent = [];
-
 	let textContent = [];
 
 	for(let follower of following){
@@ -322,7 +312,38 @@ app.post('/forYouPage', async(req, res, next) => {
 	}
 
 	res.render('forYouPage', {images: imageContent, texts: textContent});
-})	
+});
+
+app.post('/comment', async (req, res) => {
+
+	let contentIdent = req.body.contentIdent;
+
+	let userComments = await commentModel.find({contentID: contentIdent});
+
+	res.render('comment', {comments: userComments, contentIdent: contentIdent});
+})
+
+app.post('/uploadComment', async (req, res, next) => {
+
+	var comment = {
+		contentID: req.body.contentIdent,
+		comment: req.body.userComment
+	}
+
+	
+	commentModel.create(comment, async (err) => {
+		if(err){
+			console.log(err);
+		}
+		else {
+			let contentIdent = req.body.contentIdent;
+		
+			let userComments = await commentModel.find({contentID: contentIdent});
+			
+			res.render('comment', {comments: userComments, contentIdent:req.body.contentIdent});
+		}
+	})
+})
 
 // Schritt 9 - Den Server port setzen
 var port = process.env.PORT || '3000'
