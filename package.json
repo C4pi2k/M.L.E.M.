@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+<<<<<<< HEAD
     "start": "nodemon app.js >> logfile.js",
+=======
+    "start": "nodermon app.js >> logfile.js",
+>>>>>>> e7546284213544d5288aad3bf7d8083b9eb53c6c
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
