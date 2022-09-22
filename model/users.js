@@ -6,6 +6,8 @@ var userSchema = new mongoose.Schema({
     username: String,
     password: String,
     joindate: Date,
+    totpDone: Boolean,
+    secret: String,
     profileImg:
     {
 		data: Buffer,

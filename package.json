@@ -2,13 +2,9 @@
   "name": "node",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-<<<<<<< HEAD
-    "start": "nodemon app.js >> logfile.js",
-=======
-    "start": "nodermon app.js >> logfile.js",
->>>>>>> e7546284213544d5288aad3bf7d8083b9eb53c6c
+    "start": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -33,6 +29,8 @@
     "passport": "^0.5.2",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^7.0.0",
+    "qrcode": "^1.5.1",
+    "speakeasy": "^2.0.0",
     "ws": "^8.6.0"
   }
 }

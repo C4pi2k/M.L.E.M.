@@ -3,16 +3,20 @@ var express = require('express');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var bcrypt = require('bcrypt');
-var app = express();
 var bodyParser = require('body-parser');
 var MongoStore = require('connect-mongo');
 var mongoose = require('mongoose');
+var speakeasy = require('speakeasy');
+var QRCode = require('qrcode');
 var cookie = express();
+var app = express();
 
 var fs = require('fs');
 var path = require('path');
 require('dotenv/config');
 
+//totp stuff
+var secret = "";
 
 app.use(express.static(__dirname));
 
@@ -117,7 +121,17 @@ app.get('/profile', (req, res) => {
 	res.render('profile');
 })
 
+app.get('/totp', (req, res) => {
+	res.render('totp');
+})
+
 // 8 - POST Methods
+
+var globalUser;
+var globalImages;
+var globalTexts;
+var globalBase32Secret;
+
 app.post('/register', upload.single('user'), (req, res) => {
 
     var today = new Date();
@@ -129,6 +143,8 @@ app.post('/register', upload.single('user'), (req, res) => {
 		username: req.body.username,
 		password: req.body.password,
         joindate: date,
+		totpDone: false,
+		secret: '',
         profileImg:
         {
             data: null,
@@ -145,11 +161,9 @@ app.post('/register', upload.single('user'), (req, res) => {
 	});
 });
 
+
 app.post('/back', async (req, res) => {
 	let user = await userModel.findById(req.session.userid).exec();
-
-	// console.log(req.session.userid);
-	// console.log(user);
 
 	let images = await imageModel.find({userID: req.session.userid}).exec();
 
@@ -158,6 +172,7 @@ app.post('/back', async (req, res) => {
 	res.render('profile', {user: user, images: images, texts: texts});
 })
 
+
 app.post('/login', async (req, res) => {
 
 	let user = await userModel.findOne({ username: req.body.username, password:req.body.password});
@@ -165,19 +180,60 @@ app.post('/login', async (req, res) => {
 	if (user){
 			req.session.userid = user.id;
 			req.session.username = user.username;
-			console.log(req.session.userid);
-			console.log(req.session.username);
-
 			let images = await imageModel.find({userID: req.session.userid}).exec();
 
 			let texts = await textModel.find({userID: req.session.userid}).exec();
 
-			res.render('profile', {user: user, images: images, texts: texts});
+			if(user.totpDone == false){
+				globalUser = user;
+				globalImages = images;
+				globalTexts = texts;
+				secret = speakeasy.generateSecret({length: 30 });
+				globalBase32Secret = secret.base32;
+
+				QRCode.toDataURL(secret.otpauth_url, async function(err, data_url){
+					// user.totpDone = true;
+					console.log('1');
+					console.log(user.id);
+					res.render('totp', {qr_code: data_url, userId: user.id});
+				});
+			} else {
+				res.render('profile', {user: user, images: images, texts: texts});
+			}
+
 	} else {
-		res.status(200).send("User does not exist")
+		res.status(200).send("User does not exist");
 	}
 	}
 );
+
+app.post('/totp', async (req, res) => {
+
+	var base32Secret = globalBase32Secret;
+	console.log('2');
+	console.log(base32Secret);
+
+	var userToken = req.body.userToken;
+	console.log('3');
+	console.log(req.body.userToken);
+
+	var userId = req.body.userId;
+	console.log('4');
+	console.log(req.body.userId);
+	
+	var verified = speakeasy.totp.verify({ secret: base32Secret, encoding: 'base32', token: userToken});
+	console.log(verified);
+
+	if(verified == true)
+	{
+		// let user = await userModel.findOneAndUpdate(userId, update, {
+		// 	totpDone: true,
+		// 	secret: base32Secret
+		// })
+		console.log('all the skies will cry')
+		res.render('profile', {user: user, images: globalImages, texts: globalTexts});
+	}
+})
 
 app.post('/changeProfilePicture', upload.single('image'), async (req, res) => {
 
