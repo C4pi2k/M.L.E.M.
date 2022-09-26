@@ -1,7 +1,22 @@
+@font-face {
+    font-family: Blocky;
+    src: url('E:\Berufsschule\Fonts\FFF Forward\FFFFORWA.TTF');
+}
+
 .title {
+    font-family: Blocky;
     text-align: center;
 }
 
 .welcome {
     text-align: center;
+}
+
+.background {
+    background-color: aquamarine;
+}
+
+.button:hover {
+    background-color: red;
+    color: greenyellow;
 }
