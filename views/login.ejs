@@ -5,29 +5,27 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Image Uploading</title>
-	<link rel="stylesheet" href="/views/display.css">
+	<link rel="stylesheet" href="/design/login.css">
 </head>
 <body>
 
-    <h1>Log-In</h1>
+    <h1 class="title">Log-In</h1>
 
-    <div>
+    <div class="login">
         <label name="errorMessage"></label>
 
         <form action="/login" method="POST">
-            <label for="username">Username</label>
+            <label for="username">Username</label><br>
             <input type="text" id="username" placeholder="Username"
                 value="" name="username" required>  
-            <br>
-            <label for="password">Password</label>
+            <br><br>
+            <label for="password">Password</label><br>
             <input type="password" id="password" placeholder="zb.1234"
                 value="" name="password" required> 
-            <br>
+            <br><br>
             <button type="submit">Log-In</button>
         </form>
-
-        <label></label>
-
+        <br>
 		<a href="/"><button type="submit">Back</button></a>
 
     </div>
