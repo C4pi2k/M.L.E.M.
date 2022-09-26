@@ -5,31 +5,31 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Image Uploading</title>
-	<link rel="stylesheet" href="/views/display.css">
+	<link rel="stylesheet" href="/design/register.css">
 </head>
 <body>
 
-    <h1>Register</h1>
+    <h1 class="title">Register</h1>
 
-    <div>
+    <div class="register">
 
         <form action="/register" method="post" enctype="multipart/form-data">
-            <label for="email">E-Mail</label>
+            <label for="email">E-Mail</label><br>
             <input type="email" id="email" placeholder="e.g. user@mail.com"
                 value="" name="email" required> 
-            <br>
-            <label for="username">Username</label>
+            <br><br>
+            <label for="username">Username</label><br>
             <input type="text" id="username" placeholder="Username"
                 value="" name="username" required>  
-            <br>
-            <label for="password">Password</label>
+            <br><br>
+            <label for="password">Password</label><br>
             <input type="password" id="password" placeholder="zb.1234"
                 value="" name="password" required> 
-            <br>
+            <br><br>
             <button type="submit">Submit</button>
         </form>
-
-        <button type="submit">Back</button></a>
+        <br>
+        <a href="/"><button type="submit">Back</button></a>
 
 
     </div>
