@@ -127,11 +127,6 @@ app.get('/totp', (req, res) => {
 
 // 8 - POST Methods
 
-var globalUser;
-var globalImages;
-var globalTexts;
-var globalBase32Secret;
-
 app.post('/register', upload.single('user'), (req, res) => {
 
     var today = new Date();
@@ -171,7 +166,11 @@ app.post('/back', async (req, res) => {
 
 	res.render('profile', {user: user, images: images, texts: texts});
 })
-
+var globalUser;
+var globalImages;
+var globalTexts;
+var globalBase32Secret;
+var gloablUserId;
 
 app.post('/login', async (req, res) => {
 
@@ -192,9 +191,9 @@ app.post('/login', async (req, res) => {
 				globalBase32Secret = secret.base32;
 
 				QRCode.toDataURL(secret.otpauth_url, async function(err, data_url){
-					// user.totpDone = true;
-					console.log('1');
-					console.log(user.id);
+					globalUserId = user.id;
+					// console.log('1');
+					// console.log(globalUserId);
 					res.render('totp', {qr_code: data_url, userId: user.id});
 				});
 			} else {
@@ -219,19 +218,24 @@ app.post('/totp', async (req, res) => {
 
 	var userId = req.body.userId;
 	console.log('4');
-	console.log(req.body.userId);
+	console.log(globalUserId);
 	
 	var verified = speakeasy.totp.verify({ secret: base32Secret, encoding: 'base32', token: userToken});
+	console.log('5');
 	console.log(verified);
 
 	if(verified == true)
 	{
-		// let user = await userModel.findOneAndUpdate(userId, update, {
-		// 	totpDone: true,
-		// 	secret: base32Secret
-		// })
-		console.log('all the skies will cry')
-		res.render('profile', {user: user, images: globalImages, texts: globalTexts});
+		let update = {
+			totpDone: true,
+		}
+
+
+		let tempUser = await userModel.findOneAndUpdate(globalUser.id, update, {
+			new: true
+		});
+
+		res.render('profile', {user: globalUser, images: globalImages, texts: globalTexts});
 	}
 })
 
