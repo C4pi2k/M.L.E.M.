@@ -16,10 +16,9 @@
         <br>
         <label>Plase scan this QR-Code to continue</label>
 
-        <form action="/totp" method="post" enctype="multipart/form-data">
+        <form action="/totp" method="post">
             <input id="userToken" name="userToken" value="">
             <button type="submit">Submit</button>
-            <label hidden id="userId" name="userId"><%= userId %></label>
         </form>
     </div>
 
