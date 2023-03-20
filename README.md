@@ -1,6 +1,6 @@
 # M.L.E.M
 ## WTF is M.L.E.M??
-Mega Light n' Easy Media aka. M.L.E.M started out as a school-project, which was supposed to be perform multiple functions, common social media application would do aswell. *Its just a CRUD application*
+Mega Light n' Easy Media aka. M.L.E.M started out as a school-project, which was supposed to be perform multiple functions, common social media application would do aswell. *psssst its just a CRUD application, but dont tell anyone*
 
 ## What technologies are used?
 It is an Express JS Project, which uses a mongoDb-Cluster as a database
